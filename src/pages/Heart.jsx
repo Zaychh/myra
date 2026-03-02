@@ -1,57 +1,44 @@
-import { useEffect, useRef } from "react";
-import { initLoveCanvas } from "../canvas/love";
+import { useEffect } from "react"
+import useBackgroundMusic from "../hooks/useBackgroundMusic"
 
 export default function Heart() {
-  const canvasRef = useRef(null);
-  const audioRef = useRef(null);
-  const unlockedRef = useRef(false);
+  useBackgroundMusic("/music/if_i_had_a_gun.mp3")
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const audio = audioRef.current;
+    let dragging = false
+    let lx = 0
+    let ly = 0
 
-    if (!canvas || !audio) return;
+    const down = e => {
+      dragging = true
+      lx = e.clientX || e.touches?.[0].clientX
+      ly = e.clientY || e.touches?.[0].clientY
+    }
 
-    const destroy = initLoveCanvas(canvas);
+    const move = e => {
+      if (!dragging) return
+      const x = e.clientX || e.touches?.[0].clientX
+      const y = e.clientY || e.touches?.[0].clientY
 
-    const unlockAudio = () => {
-      if (unlockedRef.current) return;
-      unlockedRef.current = true;
+      window.__LOVE_ROT_Y += (x - lx) * 0.005
+      window.__LOVE_ROT_X += (y - ly) * 0.005
 
-      audio.volume = 0.8;
-      audio.loop = true;
-      audio.play().catch(() => {});
+      lx = x
+      ly = y
+    }
 
-      // once only
-      window.removeEventListener("pointerdown", unlockAudio);
-      window.removeEventListener("touchstart", unlockAudio);
-    };
+    const up = () => dragging = false
 
-    // DESKTOP
-    window.addEventListener("pointerdown", unlockAudio, { once: true });
-
-    // MOBILE FALLBACK (Safari kadang bandel)
-    window.addEventListener("touchstart", unlockAudio, { once: true });
+    window.addEventListener("pointerdown", down)
+    window.addEventListener("pointermove", move)
+    window.addEventListener("pointerup", up)
 
     return () => {
-      destroy && destroy();
-      audio.pause();
-      audio.currentTime = 0;
-    };
-  }, []);
+      window.removeEventListener("pointerdown", down)
+      window.removeEventListener("pointermove", move)
+      window.removeEventListener("pointerup", up)
+    }
+  }, [])
 
-  return (
-    <>
-      <canvas
-        ref={canvasRef}
-        className="fixed inset-0 w-full h-full"
-      />
-
-      <audio
-        ref={audioRef}
-        src="/music/if_i_had_a_gun.mp3"
-        preload="auto"
-      />
-    </>
-  );
+  return null
 }
