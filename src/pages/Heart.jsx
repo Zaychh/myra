@@ -4,35 +4,39 @@ import { initLoveCanvas } from "../canvas/love";
 export default function Heart() {
   const canvasRef = useRef(null);
   const audioRef = useRef(null);
-  const startedRef = useRef(false);
+  const unlockedRef = useRef(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const audio = audioRef.current;
 
-    if (!canvas) return;
+    if (!canvas || !audio) return;
 
     const destroy = initLoveCanvas(canvas);
 
-    const startAudio = () => {
-      if (startedRef.current) return;
-      startedRef.current = true;
+    const unlockAudio = () => {
+      if (unlockedRef.current) return;
+      unlockedRef.current = true;
 
       audio.volume = 0.8;
       audio.loop = true;
       audio.play().catch(() => {});
 
-      window.removeEventListener("pointerdown", startAudio);
+      // once only
+      window.removeEventListener("pointerdown", unlockAudio);
+      window.removeEventListener("touchstart", unlockAudio);
     };
 
-    // USER GESTURE LISTENER
-    window.addEventListener("pointerdown", startAudio);
+    // DESKTOP
+    window.addEventListener("pointerdown", unlockAudio, { once: true });
+
+    // MOBILE FALLBACK (Safari kadang bandel)
+    window.addEventListener("touchstart", unlockAudio, { once: true });
 
     return () => {
       destroy && destroy();
       audio.pause();
       audio.currentTime = 0;
-      window.removeEventListener("pointerdown", startAudio);
     };
   }, []);
 
