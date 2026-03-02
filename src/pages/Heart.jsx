@@ -2,7 +2,7 @@ import { useEffect } from "react"
 import useBackgroundMusic from "../hooks/useBackgroundMusic"
 
 export default function Heart() {
-  useBackgroundMusic("/music/if_i_had_a_gun.mp3")
+  useBackgroundMusic("/music/reff-love-song.mp3")
 
   useEffect(() => {
     let dragging = false
