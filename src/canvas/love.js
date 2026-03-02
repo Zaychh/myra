@@ -17,9 +17,6 @@ export function initLoveCanvas(canvas) {
     targetY: 0
   };
 
-  // ======================
-  // AUTO ROTATION
-  // ======================
   gsap.to(state, {
     targetY: Math.PI * 2,
     duration: 30,
@@ -27,9 +24,6 @@ export function initLoveCanvas(canvas) {
     ease: "none"
   });
 
-  // ======================
-  // DRAG CONTROL
-  // ======================
   let dragging = false;
   let lastX = 0;
   let lastY = 0;
@@ -64,9 +58,6 @@ export function initLoveCanvas(canvas) {
   });
   window.addEventListener("touchend", end);
 
-  // ======================
-  // SMOOTH INERTIA
-  // ======================
   gsap.ticker.add(() => {
     state.rotX += (state.targetX - state.rotX) * 0.08;
     state.rotY += (state.targetY - state.rotY) * 0.08;
@@ -102,7 +93,6 @@ export function initLoveCanvas(canvas) {
     ctx.font = "12px Arial";
 
     for (let t = 0; t < Math.PI * 2; t += 0.12) {
-      // PURE HEART FORMULA (2D)
       const hx = 16 * Math.pow(Math.sin(t), 3);
       const hy =
         13 * Math.cos(t) -
@@ -112,7 +102,7 @@ export function initLoveCanvas(canvas) {
 
       const x = hx * 16;
       const y = -hy * 16;
-      const z = 0; // 🔑 THIS IS THE FIX
+      const z = 0;
 
       const r = rotate3D(x, y, z);
       const p = project(r.x, r.y, r.z);

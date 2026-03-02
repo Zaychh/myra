@@ -3,18 +3,51 @@ import { initLoveCanvas } from "../canvas/love";
 
 export default function Heart() {
   const canvasRef = useRef(null);
+  const audioRef = useRef(null);
+  const startedRef = useRef(false);
 
   useEffect(() => {
-    const destroy = initLoveCanvas(canvasRef.current);
-    return () => destroy && destroy();
+    const canvas = canvasRef.current;
+    const audio = audioRef.current;
+
+    if (!canvas) return;
+
+    const destroy = initLoveCanvas(canvas);
+
+    const startAudio = () => {
+      if (startedRef.current) return;
+      startedRef.current = true;
+
+      audio.volume = 0.8;
+      audio.loop = true;
+      audio.play().catch(() => {});
+
+      window.removeEventListener("pointerdown", startAudio);
+    };
+
+    // USER GESTURE LISTENER
+    window.addEventListener("pointerdown", startAudio);
+
+    return () => {
+      destroy && destroy();
+      audio.pause();
+      audio.currentTime = 0;
+      window.removeEventListener("pointerdown", startAudio);
+    };
   }, []);
 
   return (
-    <div className="relative w-screen h-screen bg-black glossy-bg overflow-hidden">
+    <>
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 block"
+        className="fixed inset-0 w-full h-full"
       />
-    </div>
+
+      <audio
+        ref={audioRef}
+        src="/music/if_i_had_a_gun.mp3"
+        preload="auto"
+      />
+    </>
   );
 }
